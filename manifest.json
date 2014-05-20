@@ -1,0 +1,27 @@
+{
+  "name": "my calendar",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "my calendar.",
+  "browser_action": {
+    "default_title": "Open the popup",
+    "default_icon": "icon-16.png",
+    "default_popup" : "popup.html"
+  },
+  "icons": {
+    "46" : "icon-46.jpg",
+    "128" : "icon-128.png"
+  },
+  "background": 
+  { 
+	"scripts": ["contextMenus.js"]
+  },
+  "permissions": ["*://apis.google.com/*","contextMenus","tabs"],
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js" : ["scriptTagContext.js","match_date_time.js","contentscript.js"]
+    }  
+  ],
+  "content_security_policy": "script-src 'self' https://*.google.com/; object-src 'self'"
+}
