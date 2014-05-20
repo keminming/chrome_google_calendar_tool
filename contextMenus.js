@@ -34,7 +34,7 @@ chrome.runtime.onInstalled.addListener(function() {
   chrome.contextMenus.create(
   {"id": "calendar", 
     "type": "normal", 
-	"title": "add to google calendar",     
+	"title": "Add to Google Calendar",     
 	"contexts":["selection"]
   });
 });

@@ -23,14 +23,15 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 	if(title == null)
 		return;
   
-	var time = msg.time;
-	var date = get_date(time);
-	var time = get_time(time);
-	var date_time = get_data_time(date,time);
+	var date = get_date(msg.time);
+	var time = get_time(msg.time);
+	var timezone = get_time_zone(msg.time);
+	var AM_PM = get_AM_PM(msg.time);
+	var date_time = get_data_time(date,time,AM_PM);
 
-	start = format_time_google_calendar(date_time,0);
+	start = format_time_google_calendar(date_time,timezone);
 	date_time.setHours(date_time.getHours() + 1);
-	end = format_time_google_calendar(date_time,0);
+	end = format_time_google_calendar(date_time,timezone);
 	
 	add_to_calendar();
   }
