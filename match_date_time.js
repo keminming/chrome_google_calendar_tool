@@ -100,16 +100,19 @@ function get_date(input)
 	//Jan, 10 2014
 	for(var key in month_mapping)
 	{
-		var pattern = key + ",?\s*(\d\d)|(\d)";
+		var pattern = key + "\\s+(\\d\\d|\\d)";
 		console.log(pattern);
 		var re = new RegExp(pattern,"g");
 		res = input.match(re);
 		if( res != null)
 		{
-			date = res[0].split(",?\s*");
+			date = res[0].split(/\s+/);
+			date[0] = month_mapping[date[0]];
 			return date;
 		}
 	}
+	
+	return null;
 }
 
 function get_time(input)
@@ -129,6 +132,7 @@ function get_time(input)
 
 function get_data_time(date,time,AM_PM)
 {
+	
 	var d = new Date();
 	//set date
 	if(date.length == 3)

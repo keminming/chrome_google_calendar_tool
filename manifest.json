@@ -16,12 +16,12 @@
   { 
 	"scripts": ["contextMenus.js"]
   },
-  "permissions": ["*://apis.google.com/*","contextMenus","tabs"],
-  "content_scripts": [
-    {
-      "matches": ["https://mail.google.com/*"],
-      "js" : ["scriptTagContext.js","match_date_time.js","contentscript.js"]
-    }  
-  ],
+  "permissions": ["identity","*://apis.google.com/*","contextMenus","tabs"],
+  "oauth2": {
+    "client_id": "776848882882-meuj0qfjevg8r9fshpdmrtpohn4pl8po.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/calendar"
+    ]
+  },
   "content_security_policy": "script-src 'self' https://*.google.com/; object-src 'self'"
 }

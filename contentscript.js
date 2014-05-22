@@ -11,6 +11,7 @@ var end;
 var title;
 var calendarID;
 
+
 chrome.runtime.sendMessage({method: "getCalendarID"}, function(response) {
   console.log(response.ID);
   calendarID = response.ID;
@@ -39,8 +40,19 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
 // Use a button to handle authentication the first time.
 function add_to_calendar() {
-    gapi.client.setApiKey(apiKey);
-    window.setTimeout(checkAuth,1);
+    chrome.identity.removeCachedAuthToken(
+              { 'token': access_token }
+              );
+	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
+	if (chrome.runtime.lastError) 
+	{
+        console.log(chrome.runtime.lastError);
+        return;
+    }
+	
+	gapi.client.setApiKey(apiKey);
+	makeInsertApiCall();
+	});
 }
 
 function checkAuth() {
@@ -57,7 +69,7 @@ function makeInsertApiCall() {
 	console.log(end);
    gapi.client.load('calendar', 'v3', function() {
  var request = gapi.client.calendar.events.insert({
-   "calendarId": calendarID,
+   "calendarId": "primary",
    resource:{
        "summary": title,
        "location": "--",

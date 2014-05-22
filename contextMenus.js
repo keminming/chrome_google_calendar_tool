@@ -1,29 +1,51 @@
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log("message received");
-	if (request.method == "getCalendarID")
-      sendResponse({ID: localStorage['calendarID']});
-    else
-      sendResponse({}); // snub them.
-});
+var script = document.createElement('script');
+script.src = 'calendar.js';
+document.head.appendChild(script);
 
 function onClickHandler(info, tab) {
     if (info.menuItemId == "calendar"){
 	var x = window.confirm("Is the time correct: " + info.selectionText + " ?");
 	var time_message;
+	var date;
+	var time;
+	var timezone;
+	var AM_PM;
+	
  	if(x == false)
 	{
-		time_message = window.prompt("Please enter the time: (mm/dd/yyyy hh:mm:ss)");	
-		if(time_message == null)
-			return;
+		return;
 	}
 	else
 	{
 		time_message = info.selectionText;
 	} 
-		
-	chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-    chrome.tabs.sendMessage(tab.id, {action: "time_location_title",time : time_message}, function(response) {});  
-	});
+	
+	date = get_date(time_message);
+	time = get_time(time_message);
+	timezone = get_time_zone(time_message);
+	AM_PM = get_AM_PM(time_message);
+	
+	while(date === null || time === null || timezone === null || AM_PM === null)
+	{
+		time_message = window.prompt("Format can't be recognized, please enter the time: (mm/dd/yyyy hh:mm:ss)");	
+		if(time_message == null)
+			return;
+		date = get_date(time_message);
+		time = get_time(time_message);
+		timezone = get_time_zone(time_message);
+		AM_PM = get_AM_PM(time_message);
+	}
+	
+	var date_time = get_data_time(date,time,AM_PM);
+	start = format_time_google_calendar(date_time,timezone);
+	date_time.setHours(date_time.getHours() + 1);
+	end = format_time_google_calendar(date_time,timezone);
+	
+	title = window.prompt("please enter event title");
+	if(title == null)
+		return;
+	
+	add_to_calendar(start,end,title);
 	}
 }
 
