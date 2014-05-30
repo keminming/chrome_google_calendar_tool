@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html data-context="options-page">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="options.css">
+    <title class="i18n" data-msg="google_calendar_extension_name">Options</title>
+  </head>
+  <body>
+    <header>
+      <h1 class="i18n" data-msg="google_calendar_extension_name">Calendar++</h1>
+    </header>
+    
+    <h2 class="i18n" data-msg="toolbar_icon">Time Zone</h2>
+    <div>
+		<select id = "time-zone">
+		</select>
+    </div>
+	
+    <h2 class="i18n" data-msg="calendar_list_header">Calendars</h2>
+    <div>
+		<select id="calendar-list">
+		</select>
+	</div>
+	<div>
+		<input type = "button" id = "submit" value = "Submit"></input>
+	</div>		
+	<div>
+		<p>The calendar you are using is: <a id = "calendar" class = "v">Primary</a></p>
+		<p>The time zone is: <a id = "timezone" class = "v">CDT-05:00</a></p>
+	<div>
+	<script src="https://code.jquery.com/jquery-2.0.3.min.js"></script> 
+	<script src="calendar.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

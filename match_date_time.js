@@ -40,7 +40,9 @@ month_mapping["Nov"] = 11;
 month_mapping["December"] = 12;
 month_mapping["Dec"] = 12;
 
-function get_AM_PM(input)
+var weekDays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+function get_AM_PM_from_tab(input)
 {
 	var res;
 	var AM_PM;
@@ -53,7 +55,7 @@ function get_AM_PM(input)
 	return "AM";
 }
 
-function get_time_zone(input)
+function get_time_zone_from_tab(input)
 {
 	var res;
 	var time_zone;
@@ -68,10 +70,10 @@ function get_time_zone(input)
 			return time_zone;
 		}
 	}
-	return "-00:00";
+	return localStorage["timezone"];
 }
 
-function get_date(input)
+function get_date_from_tab(input)
 {
 	var res;
 	var date;
@@ -82,6 +84,9 @@ function get_date(input)
 	if( res != null)
 	{
 		date = res[0].split("/");
+		var tmp = date[0];
+		date[0] = date[2];
+		date[2] = tmp;
 		return date;
 	}
 	
@@ -91,9 +96,6 @@ function get_date(input)
 	if( res != null)
 	{
 		date = res[0].split("/");
-		var tmp = date[0];
-		date[0] = date[3];
-		date[3] = tmp;
 		return date;
 	}
 
@@ -115,7 +117,7 @@ function get_date(input)
 	return null;
 }
 
-function get_time(input)
+function get_time_from_tab(input)
 {
 	var res;
 	var time;
@@ -130,20 +132,46 @@ function get_time(input)
 	return null;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+function get_manifest_date(date)
+{
+	var d = new Date();
+	var date_array = date.split("-");
+	d.setFullYear(date_array[0]);
+	d.setMonth(date_array[1]);
+	d.setDate(date_array[2]);
+	var weekDay = d.getDay();
+	return weekDays[weekDay] + ", " + date;
+}
+
+
+function get_date_from_calendar(d)
+{
+	return to_full(d.getFullYear()) + "-" + to_full(d.getMonth()) + "-" + to_full(d.getDate());
+}
+
+function get_time_from_calendar(d)
+{
+
+	return to_full(d.getHours()) + ":" +  to_full(d.getMinutes()) + ":" + to_full(d.getSeconds());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/*common funciton*/
+
 function get_data_time(date,time,AM_PM)
 {
-	
 	var d = new Date();
 	//set date
 	if(date.length == 3)
 	{
-		d.setFullYear(parseInt(date[2]));
+		d.setFullYear(parseInt(date[0]));
 	}
 	else
 	{
 		d.setFullYear(d.getFullYear());
 	}
-	d.setMonth(parseInt(date[0]) - 1);
+	d.setMonth(parseInt(date[2]) - 1);
 	d.setDate(parseInt(date[1]));
 	
 	//set time
@@ -164,7 +192,7 @@ function get_data_time(date,time,AM_PM)
 	{
 		d.setSeconds(0);
 	}
-	console.log(d);
+	console.log("date structure:" + d);
 
 	return d;
 }
@@ -198,11 +226,44 @@ function format_time_google_calendar(input,timezone)
 	return res;
 }
 
-function test(time)
+function parse_time_google_calendar(event)
 {
-	var date = get_date(time);
-	var time = get_time(time);
-	var date_time = get_data_time(date,time);
-	var formated_time = format_time_google_calendar(date_time);
-	return formated_time;
+	var date;
+	var time;
+	if(event.start.date != null)
+	{
+		date = event.start.date;
+	}
+	else if(event.start.dateTime != null)
+	{
+		date = event.start.dateTime.substring(0,event.start.dateTime.indexOf("T"));
+		time = event.start.dateTime.substring(event.start.dateTime.indexOf("T") + 1,event.start.dateTime.indexOf("T") + 9);
+	}
+	else
+		return null;
+		
+	//console.log(date);
+	//console.log(time);
+	var date_array = date.split("-");
+	var d = new Date();
+	d.setYear(date_array[0]);
+	d.setMonth(date_array[1]);
+	d.setDate(date_array[2]);
+
+	if(time != null)
+	{
+		var time_array = time.split(":");
+		d.setHours(time_array[0]);
+		d.setMinutes(time_array[1]);
+		d.setSeconds(time_array[2]);
+	}
+	else
+	{
+		d.setHours("00");
+		d.setMinutes("00");
+		d.setSeconds("00");
+	}
+	
+	return d;
 }
+

@@ -6,9 +6,24 @@
 -->
 <html>
   <head>
-  <script src="calendar.js"></script>
+	<script src="https://code.jquery.com/jquery-2.0.3.min.js"></script> 
+	<script src="match_date_time.js"></script>
+	<link rel="stylesheet" href="popup.css" type="text/css">
   </head>
-  <body id = "b">
+  <body>
+    <header>
+		<div class = "action-bar">
+			<a href = "options.html" target = "_blank"><img src = "configure-16.jpg" id = "configure" title = "Configure Your Calendar++"></a>
+			<a href = "help.html" target = "_blank"><img src = "question-16.png" id = "question" title = "Help"></a>
+		</div>
+		<div class = "popup-title">
+			<span id = "icon"><a href = "https://www.google.com/calendar/render" target = "_blank"><img src = "icon-16.png"></a></span>&nbsp <span id = "logo_text">Calendar++</span>
+		</div>
+	</header>
+	<div id = "calendar-events">
+	</div>	
   </body>
+  
+  <script src="calendar.js"></script>
   <script src="popup.js"></script>
 </html>

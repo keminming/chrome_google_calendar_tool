@@ -1,0 +1,93 @@
+* {
+  box-sizing: border-box;
+  font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+}
+
+body {
+  background: #FFFFFF;
+  font-size: 16px;
+  height: 480px;
+  overflow-y: scroll;
+  width: 300px;
+}
+
+
+header {
+  margin-bottom: 20px;
+}
+
+.popup-title span {
+  color: #909090;
+  font-size: 24px;
+  font-weight: bold;
+  outline: none;
+}
+
+.action-bar {
+  float: right;
+}
+
+.action-bar img {
+  cursor: pointer;
+  height: 16px;
+  width: 16px;
+}
+
+
+table
+{
+	width:270px;
+}
+
+textarea
+{
+	width:170px;
+	border-style:none;
+	font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+	font-weight: bold;
+	vertical-align:bottom;
+	height:30px;
+}
+
+.date input
+{
+	width:150px;
+	border-style: none; 
+	color: white; 
+	font-weight: bold; 
+	padding-left: 2px;
+}
+
+.time input
+{
+	width:120px;
+	border-style: none; 
+	color: black; 
+	font-weight: bold; 
+	padding-left: 2px;
+}
+
+.panel img
+{
+	width:16px;
+	height:16px;
+	float:right;
+	vertical-align:bottom;
+	cursor:pointer;
+}
+
+td.panel
+{
+	float:right;
+}
+
+input:hover{-webkit-transition: all 1s ease-in-out;background-color:yellow;}
+
+textarea:hover{-webkit-transition: all 1s ease-in-out;background-color:yellow;}
+
+textarea:focus, input:focus{
+    outline: 0;
+}
+
+#logo_text:hover{-webkit-transition: all 2s ease-in-out;color:#CC00FF;}
+#icon:hover{color:#E6E6E6;}

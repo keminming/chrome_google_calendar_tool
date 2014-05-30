@@ -1,39 +1,37 @@
-var script = document.createElement('script');
-script.src = 'calendar.js';
-document.head.appendChild(script);
+
 
 function onClickHandler(info, tab) {
     if (info.menuItemId == "calendar"){
-	var x = window.confirm("Is the time correct: " + info.selectionText + " ?");
+	//var x = window.confirm("Is the time correct: " + info.selectionText + " ?");
 	var time_message;
 	var date;
 	var time;
 	var timezone;
 	var AM_PM;
 	
- 	if(x == false)
-	{
-		return;
-	}
-	else
-	{
+ 	//if(x == false)
+	//{
+	//	return;
+	//}
+	//else
+	//{
 		time_message = info.selectionText;
-	} 
+	//} 
 	
-	date = get_date(time_message);
-	time = get_time(time_message);
-	timezone = get_time_zone(time_message);
-	AM_PM = get_AM_PM(time_message);
+	date = get_date_from_tab(time_message);
+	time = get_time_from_tab(time_message);
+	timezone = get_time_zone_from_tab(time_message);
+	AM_PM = get_AM_PM_from_tab(time_message);
 	
 	while(date === null || time === null || timezone === null || AM_PM === null)
 	{
 		time_message = window.prompt("Format can't be recognized, please enter the time: (mm/dd/yyyy hh:mm:ss)");	
 		if(time_message == null)
 			return;
-		date = get_date(time_message);
-		time = get_time(time_message);
-		timezone = get_time_zone(time_message);
-		AM_PM = get_AM_PM(time_message);
+		date = get_date_from_tab(time_message);
+		time = get_time_from_tab(time_message);
+		timezone = get_time_zone_from_tab(time_message);
+		AM_PM = get_AM_PM_from_tab(time_message);
 	}
 	
 	var date_time = get_data_time(date,time,AM_PM);
