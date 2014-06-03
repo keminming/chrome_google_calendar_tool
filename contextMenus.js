@@ -1,55 +1,99 @@
 
+var raw_date_time;
+var title;
+
+function prompt_time()
+{
+	chrome.tabs.getSelected(null, function(tab) {
+        chrome.tabs.query({active: true}, function(tabs){  		  
+			chrome.tabs.sendMessage(tab.id, {action: "open_time_box"}); 		
+		});
+    });     
+
+}
+
+function prompt_title()
+{
+	chrome.tabs.getSelected(null, function(tab) {
+        chrome.tabs.query({active: true}, function(tabs){  		  
+			chrome.tabs.sendMessage(tab.id, {action: "open_title_box"}); 		
+		});
+    });  
+}
+
+function messageHandler(msg, sender, sendResponse)
+{
+	console.log("msg received in context menu");
+	console.log(msg);
+	if(msg.action == "open_date_box")
+	{
+		console.log("receive open_date_box in context menu");
+		raw_date_time = msg.value;
+		prompt_title();
+	}
+	
+	if(msg.action == "open_title_box")
+	{
+		console.log("receive open_title_box in context menu");
+		title = msg.value;
+		console.log(date_time);
+		console.log(title);
+
+		var date = get_date_from_tab(raw_date_time);
+		var time = get_time_from_tab(raw_date_time);
+		
+		var date_time = get_data_time(date,time,"AM");	
+		var start = format_time_google_calendar(date_time,localStorage["timezone"]);
+		date_time.setHours(date_time.getHours() + 1);
+		var end = format_time_google_calendar(date_time,localStorage["timezone"]);
+		add_to_calendar(start,end,title);
+	}
+}
 
 function onClickHandler(info, tab) {
     if (info.menuItemId == "calendar"){
-	//var x = window.confirm("Is the time correct: " + info.selectionText + " ?");
-	var time_message;
-	var date;
-	var time;
-	var timezone;
-	var AM_PM;
-	
- 	//if(x == false)
-	//{
-	//	return;
-	//}
-	//else
-	//{
-		time_message = info.selectionText;
-	//} 
-	
-	date = get_date_from_tab(time_message);
-	time = get_time_from_tab(time_message);
-	timezone = get_time_zone_from_tab(time_message);
-	AM_PM = get_AM_PM_from_tab(time_message);
-	
-	while(date === null || time === null || timezone === null || AM_PM === null)
-	{
-		time_message = window.prompt("Format can't be recognized, please enter the time: (mm/dd/yyyy hh:mm:ss)");	
-		if(time_message == null)
-			return;
+		var time_message;
+		var date;
+		var time;
+		var timezone;
+		var AM_PM;
+		var date_time;
+
+		time_message = info.selectionText; 
+		
 		date = get_date_from_tab(time_message);
+		
 		time = get_time_from_tab(time_message);
 		timezone = get_time_zone_from_tab(time_message);
 		AM_PM = get_AM_PM_from_tab(time_message);
-	}
-	
-	var date_time = get_data_time(date,time,AM_PM);
-	start = format_time_google_calendar(date_time,timezone);
-	date_time.setHours(date_time.getHours() + 1);
-	end = format_time_google_calendar(date_time,timezone);
-	
-	title = window.prompt("please enter event title");
-	if(title == null)
-		return;
-	
-	add_to_calendar(start,end,title);
+		
+		if(date === null || time === null || timezone === null || AM_PM === null)
+		{		
+			prompt_time();
+		}
+		else
+		{
+			date_time = get_data_time(date,time,AM_PM);	
+			start = format_time_google_calendar(date_time,timezone);
+			date_time.setHours(date_time.getHours() + 1);
+			end = format_time_google_calendar(date_time,timezone);
+		
+			title = prompt_title();
+			if(title == null)
+				return;
+		
+			add_to_calendar(start,end,title);
+		}
 	}
 }
 
 chrome.contextMenus.onClicked.addListener(onClickHandler);
 
+chrome.extension.onMessage.addListener(messageHandler);
+
 chrome.runtime.onInstalled.addListener(function() {
+
+  localStorage["timezone"] = "-06:00";
 
   chrome.contextMenus.create(
   {"id": "calendar", 

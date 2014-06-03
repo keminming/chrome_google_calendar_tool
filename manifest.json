@@ -1,6 +1,6 @@
 {
   "name": "Calendar++",
-  "version": "1.1",
+  "version": "1.4",
   "manifest_version": 2,
   "description": "Add event to Google Calendar by Chrome Extension",
   "browser_action": {
@@ -16,7 +16,14 @@
   { 
 	"scripts": ["contextMenus.js","calendar.js","scheduler.js"]
   },
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArkU3jcFE60x5kS62bE137ebykdAmfsY1Xqkfaz+2pdd1pKoc6AbDHvsDvQx7CB/AStI65A1YOGz030GZ9/Zj5yRqh4JusoWS6t9n90yJQa1XalaCiDi/5MHChhEJkjFekRljYv411JUBgRllmE4neNqESNg3IFGMwKYzfWZ6XiwmQsFup66lX/Te141mfzOdDOkKEKNYP4WtieKkyvU5hzJh6Z/wJC/2gHvIkVuQOQI3wCUWnRK/xqCwUQ2SMhlwS5tV0dRxwSHDtTXgXoLjVViHP0DEWd99iToUqYgJ+rNvLPLXVliybzzusbwNeOpU+FccrWg58TgngZAdMszkdQIDAQAB",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*","https://*/*"],
+	  "css":["DateTimePicker.css","content_script.css"],
+      "js": ["jquery-1.11.1.min.js","DateTimePicker.js","content_script.js"]
+    }
+  ],
+ 
   "permissions": ["identity","*://apis.google.com/*","contextMenus","tabs"],
   "oauth2": {
     "client_id": "206855820890-ph06p7tufqse0hbdf8vmu36oohb6numf.apps.googleusercontent.com",
@@ -24,5 +31,8 @@
       "https://www.googleapis.com/auth/calendar"
     ]
   },
-  "content_security_policy": "script-src 'self' https://*.google.com https://code.jquery.com/jquery-2.0.3.min.js; object-src 'self'"
+  "web_accessible_resources": [
+    "*.png"
+  ],
+  "content_security_policy": "script-src 'self' https://*.google.com; object-src 'self'"
 }

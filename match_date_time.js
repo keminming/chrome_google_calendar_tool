@@ -47,7 +47,7 @@ function get_AM_PM_from_tab(input)
 	var res;
 	var AM_PM;
 	res = input.toUpperCase().match("PM");
-	console.log(res);
+	//console.log(res);
 	if(res != null)
 	{
 		return "PM";
@@ -63,7 +63,7 @@ function get_time_zone_from_tab(input)
 	{
 		var s = input.toUpperCase();
 		res = s.match(key);
-		console.log(res);
+		//console.log(res);
 		if( res != null)
 		{
 			time_zone = time_zone_mapping[res[0]];
@@ -77,22 +77,23 @@ function get_date_from_tab(input)
 {
 	var res;
 	var date;
-	console.log(input);
+	//console.log(input);
 	//mm/dd/yyyy
 	res = input.match(/\d\d\/\d\d\/\d\d\d\d/g);
-	console.log(res);
+	//console.log(res);
 	if( res != null)
 	{
 		date = res[0].split("/");
-		var tmp = date[0];
-		date[0] = date[2];
-		date[2] = tmp;
+		var tmp = date[2];
+		date[2] = date[1];
+		date[1] = date[0];
+		date[0] = tmp;
 		return date;
 	}
 	
 	//yyyy/mm/dd
 	res = input.match(/\d\d\d\d\/\d\d\/\d\d/g);
-	console.log(res);
+	//console.log(res);
 	if( res != null)
 	{
 		date = res[0].split("/");
@@ -103,7 +104,7 @@ function get_date_from_tab(input)
 	for(var key in month_mapping)
 	{
 		var pattern = key + "\\s+(\\d\\d|\\d)";
-		console.log(pattern);
+		//console.log(pattern);
 		var re = new RegExp(pattern,"g");
 		res = input.match(re);
 		if( res != null)
@@ -114,6 +115,18 @@ function get_date_from_tab(input)
 		}
 	}
 	
+	//mm-dd-yyyy
+	res = input.match(/\d\d-\d\d-\d\d\d\d/g);
+	//console.log(res);
+	if( res != null)
+	{
+		date = res[0].split("-");
+		var tmp = date[2];
+		date[2] = date[0];
+		date[0] = tmp;
+		return date;
+	}
+	
 	return null;
 }
 
@@ -121,9 +134,9 @@ function get_time_from_tab(input)
 {
 	var res;
 	var time;
-	console.log(input);
+	//console.log(input);
 	res = input.match(/(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?/g);
-	console.log(res);
+	//console.log(res);
 	if( res != null)
 	{
 		time = res[0].split(":");
@@ -147,7 +160,7 @@ function get_manifest_date(date)
 
 function get_date_from_calendar(d)
 {
-	return to_full(d.getFullYear()) + "-" + to_full(d.getMonth()) + "-" + to_full(d.getDate());
+	return to_full(d.getFullYear()) + "-" + to_full(d.getMonth() + 1) + "-" + to_full(d.getDate());
 }
 
 function get_time_from_calendar(d)
@@ -171,8 +184,8 @@ function get_data_time(date,time,AM_PM)
 	{
 		d.setFullYear(d.getFullYear());
 	}
-	d.setMonth(parseInt(date[2]) - 1);
-	d.setDate(parseInt(date[1]));
+	d.setMonth(parseInt(date[1]) - 1);
+	d.setDate(parseInt(date[2]));
 	
 	//set time
 	if(AM_PM == "PM")
@@ -192,7 +205,7 @@ function get_data_time(date,time,AM_PM)
 	{
 		d.setSeconds(0);
 	}
-	console.log("date structure:" + d);
+	//console.log("date structure:" + d);
 
 	return d;
 }
@@ -221,8 +234,8 @@ function format_time_google_calendar(input,timezone)
 	var minute = to_full(input.getMinutes());
 	var second = to_full(input.getSeconds());
 	res = year + '-' + month + '-' + day + 'T' + hour
-	+ ':' + minute + ':' + second + ".000" + timezone;
-	console.log("time = " + res);
+	+ ':' + minute + ':' + second  + timezone;
+	//console.log("time = " + res);
 	return res;
 }
 
@@ -247,7 +260,7 @@ function parse_time_google_calendar(event)
 	var date_array = date.split("-");
 	var d = new Date();
 	d.setYear(date_array[0]);
-	d.setMonth(date_array[1]);
+	d.setMonth(parseInt(date_array[1]) - 1);
 	d.setDate(date_array[2]);
 
 	if(time != null)

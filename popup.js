@@ -2,24 +2,24 @@ var script= document.createElement('script');
 script.src = 'match_date_time.js';
 document.head.appendChild(script);
 
-var colors = ["#B26B00","#FF0000","#33CC33","#0000FF"];
+var colors = ["#0266C8","#F90101","#F2B50F"," #00933B"];
+var port = chrome.runtime.connect({name: "closeDetect"});
 
-
-get_events_from_calendar(generate_event_list);
 var events_div = document.getElementById("calendar-events");
 events_div.setAttribute('align','center');
 var busy = document.createElement("img");
 busy.setAttribute("src","wait.gif");
-
 events_div.appendChild(busy);
+get_events_from_calendar(generate_UI);
+//var event_table;
 
-
-function generate_event_list()
+function generate_UI()
 {
 	var table = document.createElement("table");
 	table.setAttribute("id","event_table");
-	var event_table = JSON.parse(localStorage.event_table);
+	event_table = JSON.parse(localStorage.event_table);
 	//console.log(event_table.length);
+
 	for(var i = 0; i<event_table.length;i++)
 	{
 		var date_input = document.createElement("input");
@@ -52,7 +52,7 @@ function generate_event_list()
 		
 		var summary_input = document.createElement("textarea");
 		summary_input.setAttribute("id",event_table[i].summary.id);
-		console.log("#" + event_table[i].summary.id);
+		//console.log("#" + event_table[i].summary.id);
 		summary_input.setAttribute("name",event_table[i].summary.id);
 		var summary_txt = document.createTextNode(event_table[i].summary.value);
 		summary_input.appendChild(summary_txt);
@@ -63,25 +63,38 @@ function generate_event_list()
 		summary_cell.style.borderLeftStyle = "solid";
 		summary_cell.style.borderLeftColor = colors[i%colors.length];
 		
-		var change_btn = document.createElement("img");
-		change_btn.setAttribute("src","Pencil-16.png");
-		change_btn.setAttribute("class","panel");
-		change_btn.setAttribute("id","change" + i);
-		change_btn.setAttribute("src","pen.png");
-		change_btn.setAttribute("title","Modify");
-		change_btn.onmouseover = function(){this.src = "pen-alter.png"};
-		change_btn.onmouseout = function(){this.src = "pen.png"}
+		var reset_btn = document.createElement("img");
+		reset_btn.setAttribute("src","reset.png");
+		reset_btn.setAttribute("class","panel");
+		reset_btn.setAttribute("id","reset" + i);
+		reset_btn.setAttribute("title","Reset");
+		
+		var reset_div = document.createElement("div");
+		reset_div.setAttribute("class","panel");
+		reset_div.setAttribute("id","left");
+		reset_div.setAttribute("align","center");
+		reset_div.appendChild(reset_btn);
+
+		reset_div.onmousedown = function(){this.style.backgroundColor = "#B2B2B2";}
+		reset_div.onmouseup = function(){this.style.backgroundColor = "#FAFAFA";}
+		
 		var delete_btn = document.createElement("img");
 		delete_btn.setAttribute("src","bin.png");
-		delete_btn.onmouseover = function(){this.src = "bin-alter.png"};
-		delete_btn.onmouseout = function(){this.src = "bin.png"}
 		delete_btn.setAttribute("class","panel");
 		delete_btn.setAttribute("id","delete" + i);
 		delete_btn.setAttribute("title","Delete");
 		
+		var delete_div = document.createElement("div");
+		delete_div.setAttribute("class","panel");
+		delete_div.setAttribute("id","right");
+		delete_div.setAttribute("align","center");
+		delete_div.appendChild(delete_btn);
+		delete_div.onmousedown = function(){this.style.backgroundColor = "#B2B2B2";}
+		delete_div.onmouseup = function(){this.style.backgroundColor = "#FAFAFA";}
+		
 		var panel_cell = document.createElement("td");
-		panel_cell.appendChild(change_btn);
-		panel_cell.appendChild(delete_btn);
+		panel_cell.appendChild(delete_div);
+		panel_cell.appendChild(reset_div);
 		panel_cell.className = "panel";
 		
 		var first_row = document.createElement("tr");
@@ -97,56 +110,84 @@ function generate_event_list()
 		table.appendChild(second_row);
 	}
 	events_div.appendChild(table);
+	for(var i =0;i<event_table.length;i++)
+	{
+		init_listener(i);
+	}
 	if(busy != null && busy.parentNode == events_div)
 	{
-		console.log("remove");
+		//console.log("remove");
 		events_div.removeChild(busy);
 	}
-	init_wiget();
 }
 
-function init_wiget()
+function init_listener(i)
 {
-	console.log("init_wiget");
-	var event_table = JSON.parse(localStorage.event_table);
-	console.log(event_table);
-	for(var i=0;i<event_table.length;i++)
-	{
-		var change_id = "#change" + i;
-		console.log(change_id);
-		$(change_id).bind('click', function() {
-			console.log("click");
-			var index = $(this).attr('id').substr(6);
-			var did = "#d" + index;
-			var tid = "#t" + index;
-			var sid = "#s" + index;
-			console.log(did);
-			console.log(tid);
-			console.log(sid);
-			var date = $(did).val();
-			var time = $(tid).val();
-			var summary = $(sid).val();
-			console.log(date);
-			console.log(time);
-			console.log(summary);
-			event_table[index].date.value = date;
-			event_table[index].time.value = time;
-			event_table[index].summary.value = summary;
-			UpdateEvent(event_table[index]);
-		});
+	//console.log("init_listener" + i);
+
+	var did = "#d" + i; 
+	$(did).bind('input', function() {
+		var index = parseInt(did.substr(2));
+		//console.log("d" + index);
+
+		var date = $(did).val();
+		var msg = {"type":"modify","payload":{"id":index, "field":"date","value":date}};			
+		port.postMessage(msg);
+	});
+	
+	var tid = "#t" + i;
+	$(tid).bind('input', function() {
+		var index = parseInt(tid.substr(2));
+		//console.log("t" + index);
+		var time = $(tid).val();
+		var msg = {"type":"modify","payload":{"id":index, "field":"time","value":time}};			
+		port.postMessage(msg);
+	});
+	
+	var sid = "#s" + i;
+	$(sid).bind('input propertychange', function() {
+		//console.log(sid);
+		var index = parseInt(sid.substr(2));
+		//console.log("s" + index);
+		var summary = $(sid).val();
+		var msg = {"type":"modify","payload":{"id":index, "field":"summary","value":summary}};			
+		port.postMessage(msg);
+	});
+	
+	var reset_id = "#reset" + i;
+	//console.log(reset_id);
+	$(reset_id).bind('click', function() {	
+		var index = parseInt(reset_id.substr(6));
+		//console.log("reset" + index);
+		var did = "#d" + index; 
+		var tid = "#t" + index;
+		var sid = "#s" + index;
 		
-		var delete_id = "#delete" + i;
-		$(delete_id).bind('click', function() {
-			console.log("delete");
-			var index = $(this).attr('id').substr(6);
-			DeleteEvent(event_table[index]);
-			$("#r1-" + index).fadeOut();
-			setTimeout("$('#r1-' + index)..remove()",1000);
-			$("#r2-" + index).fadeOut();
-			setTimeout("$('#r1-' + index)..remove()",1000);
-		});
-	}
+		$(tid).val(event_table[index].time.value);
+		$(did).val(event_table[index].date.value);
+		$(sid).val(event_table[index].summary.value);
+		
+		var msg = {"type":"reset","payload":{"id":index}};			
+		port.postMessage(msg);
+	});
+	
+	
+	
+	var delete_id = "#delete" + i;
+	//console.log(delete_id);
+	$(delete_id).bind('click', function() {
+
+		var index = parseInt(delete_id.substr(7));
+		//console.log("delete" + index);
+		var msg = {"type":"delete","payload":{"id":index}};			
+		port.postMessage(msg);
+		$("#r1-" + index).fadeOut();
+		setTimeout("$('#r1-' + index).remove()",1000);
+		$("#r2-" + index).fadeOut();
+		setTimeout("$('#r1-' + index).remove()",1000);
+	});
 }
+
 
 
 

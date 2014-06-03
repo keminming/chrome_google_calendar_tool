@@ -26,12 +26,12 @@ h2 {
 select {
     padding:3px;
     margin: 0;
-    -webkit-border-radius:4px;
-    -moz-border-radius:4px;
-    border-radius:4px;
-    -webkit-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
-    -moz-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
-    box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+    -webkit-border-radius:0px;
+    -moz-border-radius:0px;
+    border-radius:0px;
+    -webkit-box-shadow: 0 0px 0 #ccc, 0 -1px #fff inset;
+    -moz-box-shadow: 0 0px 0 #ccc, 0 -1px #fff inset;
+    box-shadow: 0 0px 0 #ccc, 0 -1px #fff inset;
     background: #f8f8f8;
     color:blue;
     border:none;
@@ -46,15 +46,33 @@ select {
 
 select option {
     margin:40px;
-    background: rgba(0,0,0,0.3);
+    background: steelblue;
     color:#fff;
     text-shadow:0 1px 0 rgba(0,0,0,0.4);
+	border-style:none;
 }
 
 
 #submit
 {
-	margin-top:50px;
+	margin-top:70px;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0px;
+	font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+	color: #ffffff;
+	font-size: 16px;
+	background: #3498db;
+	padding: 10px 20px 20px 20px;
+	text-decoration: none;
+	border-style:none;
+	width:100px;
+	height:40px;
+}
+
+#submit:hover
+{
+	cursor:pointer;
 }
 
 #calendar,#timezone
