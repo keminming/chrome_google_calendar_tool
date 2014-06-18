@@ -14,7 +14,7 @@
   },
   "background": 
   { 
-	"scripts": ["contextMenus.js","calendar.js","scheduler.js"]
+	"scripts": ["contextMenus.js","calendar.js","scheduler.js","dateTime.js"]
   },
   "content_scripts": [
     {
@@ -23,7 +23,6 @@
       "js": ["jquery-1.11.1.min.js","DateTimePicker.js","content_script.js"]
     }
   ],
- 
   "permissions": ["identity","*://apis.google.com/*","contextMenus","tabs"],
   "oauth2": {
     "client_id": "206855820890-ph06p7tufqse0hbdf8vmu36oohb6numf.apps.googleusercontent.com",

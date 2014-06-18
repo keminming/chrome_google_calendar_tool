@@ -1,127 +1,180 @@
-var script= document.createElement('script');
-script.src = 'match_date_time.js';
-document.head.appendChild(script);
+/**
+ * @fileoverview Popup page
+ *
+ * @author keminming@google.com (Ke Wang)
+ */
 
-var colors = ["#0266C8","#F90101","#F2B50F"," #00933B"];
+/**
+ * Port to communicate with backgroud page.
+ */
 var port = chrome.runtime.connect({name: "closeDetect"});
 
-var events_div = document.getElementById("calendar-events");
-events_div.setAttribute('align','center');
-var busy = document.createElement("img");
-busy.setAttribute("src","wait.gif");
-events_div.appendChild(busy);
-get_events_from_calendar(generate_UI);
-//var event_table;
+/**
+ * Namespace for popup functionality.
+ */
+var popup = {};
 
-function generate_UI()
+/**
+ * The event background color, using google logo color.
+ * @type {string[]}
+ * @const
+ */
+popup.colors = ["#0266C8","#F90101","#F2B50F"," #00933B"];
+
+/**
+ * Initialize popup page.
+ */
+popup.init = function()
 {
+	var eventsDiv = $('#calendar-events').get(0);
+	$('#calendar-events').attr({'align':'center'});
+	var busy = document.createElement("img");
+	$(busy).attr({"src":"wait.gif"}).appendTo($('#calendar-events'));
+	calendar.getEventsFromCalendar(popup.generateUI,{"eventsDiv":eventsDiv,"busy":busy});
+}
+
+/**
+ * Generate popup UI HTML.
+ * @param {{"eventsDiv":eventsDiv,"busy":busy}}.
+ * @private
+ */
+popup.generateUI = function (param)
+{
+	var eventsDiv = param["eventsDiv"];
+	var busy = param["busy"];
 	var table = document.createElement("table");
-	table.setAttribute("id","event_table");
+	$(table).attr({'id':'eventTable'});
 	event_table = JSON.parse(localStorage.event_table);
-	//console.log(event_table.length);
 
 	for(var i = 0; i<event_table.length;i++)
 	{
-		var date_input = document.createElement("input");
-		date_input.setAttribute("id",event_table[i].date.id);
-		date_input.setAttribute("name",event_table[i].date.id);
-		date_input.setAttribute("type","date");
-		date_input.setAttribute("value",event_table[i].date.value);
-		date_input.style.backgroundColor = colors[i%colors.length];
-
-		var date_cell = document.createElement("td");
-		date_cell.className = "date";
-		date_cell.appendChild(date_input);
-		date_cell.style.backgroundColor = colors[i%colors.length];
+		var dateInput = document.createElement("input");
+		$(dateInput).attr(
+			{
+				'id':event_table[i].date.id,
+				'name':event_table[i].date.id,
+				'type':'date',
+				'value':event_table[i].date.value
+			}
+		);
 		
-		var time_input = document.createElement("input");
-		time_input.setAttribute("id",event_table[i].time.id);
-		time_input.setAttribute("name",event_table[i].time.id);
-		time_input.setAttribute("type","time");
-		time_input.setAttribute("value",event_table[i].time.value);
-		//time_input.style.backgroundColor = colors[i%colors.length];
+		$(dateInput).css({'background-color':popup.colors[i%popup.colors.length]});
 		
-		var time_cell = document.createElement("td");
-		time_cell.appendChild(time_input);
-		time_cell.className = "time";		
-		//time_cell.style.backgroundColor = colors[i%colors.length];
-
-		time_cell.style.borderBottomStyle = "solid";
-		time_cell.style.borderBottomColor = colors[i%colors.length];
+		var dateCell = document.createElement("td");
+		$(dateCell)
+			.addClass('date')
+			.css({'background-color':popup.colors[i%popup.colors.length]})
+			.append($(dateInput));
 		
+		var timeInput = document.createElement("input");
+		$(timeInput).attr(
+			{
+				'id':event_table[i].time.id,
+				'name':event_table[i].time.id,
+				'type':'time',
+				'value':event_table[i].time.value
+			}
+		);		
 		
-		var summary_input = document.createElement("textarea");
-		summary_input.setAttribute("id",event_table[i].summary.id);
-		//console.log("#" + event_table[i].summary.id);
-		summary_input.setAttribute("name",event_table[i].summary.id);
-		var summary_txt = document.createTextNode(event_table[i].summary.value);
-		summary_input.appendChild(summary_txt);
+		var timeCell = document.createElement("td");
+		$(timeCell)
+			.addClass('time')
+			.css({'border-bottom-style':"solid",'border-bottom-color':popup.colors[i%popup.colors.length]})
+			.append($(timeInput));
+						
+		var summaryInput = document.createElement("textarea");
+		$(summaryInput).attr(
+			{
+				'id':event_table[i].summary.id,
+				'name':event_table[i].summary.id,
+				'type':'time',
+				'value':event_table[i].summary.value
+			}
+		).text(event_table[i].summary.value);			
 	
-		var summary_cell = document.createElement("td");
-		summary_cell.appendChild(summary_input);
-		summary_cell.className = "summary";
-		summary_cell.style.borderLeftStyle = "solid";
-		summary_cell.style.borderLeftColor = colors[i%colors.length];
+		var summaryCell = document.createElement("td");
+		$(summaryCell)
+			.addClass('summary')
+			.css({'border-left-style':"solid",'border-left-color':popup.colors[i%popup.colors.length]})
+			.append($(summaryInput));		
+			
+		var resetBtn = document.createElement("img");
+		$(resetBtn).attr(
+			{
+				'src':'reset.png',
+				'class':'panel',
+				'id':'reset' + i,
+				'title':'Reset'
+			}
+		);			
 		
-		var reset_btn = document.createElement("img");
-		reset_btn.setAttribute("src","reset.png");
-		reset_btn.setAttribute("class","panel");
-		reset_btn.setAttribute("id","reset" + i);
-		reset_btn.setAttribute("title","Reset");
+		var resetDiv = document.createElement("div");
+		$(resetDiv)
+			.addClass('panel')
+			.attr(
+				{
+					'id':'left',
+					'align':'center'
+				}
+			)
+			.mousedown(function(){this.style.backgroundColor = "#B2B2B2";})
+			.mouseup(function(){this.style.backgroundColor = "#FAFAFA";})
+			.append($(resetBtn));			
 		
-		var reset_div = document.createElement("div");
-		reset_div.setAttribute("class","panel");
-		reset_div.setAttribute("id","left");
-		reset_div.setAttribute("align","center");
-		reset_div.appendChild(reset_btn);
-
-		reset_div.onmousedown = function(){this.style.backgroundColor = "#B2B2B2";}
-		reset_div.onmouseup = function(){this.style.backgroundColor = "#FAFAFA";}
 		
-		var delete_btn = document.createElement("img");
-		delete_btn.setAttribute("src","bin.png");
-		delete_btn.setAttribute("class","panel");
-		delete_btn.setAttribute("id","delete" + i);
-		delete_btn.setAttribute("title","Delete");
+		var deleteBtn = document.createElement("img");
+		$(deleteBtn).attr(
+			{
+				'src':'bin.png',
+				'class':'panel',
+				'id':'delete' + i,
+				'title':'delete'
+			}
+		);			
 		
-		var delete_div = document.createElement("div");
-		delete_div.setAttribute("class","panel");
-		delete_div.setAttribute("id","right");
-		delete_div.setAttribute("align","center");
-		delete_div.appendChild(delete_btn);
-		delete_div.onmousedown = function(){this.style.backgroundColor = "#B2B2B2";}
-		delete_div.onmouseup = function(){this.style.backgroundColor = "#FAFAFA";}
+		var deleteDiv = document.createElement("div");
+		$(deleteDiv)
+			.addClass('panel')
+			.attr(
+				{
+					'id':'right',
+					'align':'center'
+				}
+			)
+			.mousedown(function(){this.style.backgroundColor = "#B2B2B2";})
+			.mouseup(function(){this.style.backgroundColor = "#FAFAFA";})
+			.append($(deleteBtn));				
 		
-		var panel_cell = document.createElement("td");
-		panel_cell.appendChild(delete_div);
-		panel_cell.appendChild(reset_div);
-		panel_cell.className = "panel";
 		
-		var first_row = document.createElement("tr");
-		first_row.setAttribute("id","r1-"+ event_table[i].id);
-		var second_row = document.createElement("tr");
-		second_row.setAttribute("id","r2-"+ event_table[i].id);
-		first_row.appendChild(date_cell);
-		first_row.appendChild(time_cell);
-		second_row.appendChild(summary_cell);
-		second_row.appendChild(panel_cell);
+		var panelCell = document.createElement("td");
+		$(panelCell).addClass('panel').append(deleteDiv,resetDiv);
+			
+		var firstRow = document.createElement("tr");
+		$(firstRow).attr({'id':"r1-"+ event_table[i].id}).append(dateCell,timeCell);
 		
-		table.appendChild(first_row);
-		table.appendChild(second_row);
+		var secondRow = document.createElement("tr");
+		$(secondRow).attr({"id":"r2-"+ event_table[i].id}).append(summaryCell,panelCell);
+		
+		$(table).append(firstRow,secondRow);
 	}
-	events_div.appendChild(table);
+	eventsDiv.appendChild(table);
 	for(var i =0;i<event_table.length;i++)
 	{
-		init_listener(i);
+		popup.initListener(i);
 	}
-	if(busy != null && busy.parentNode == events_div)
+	if(busy != null && busy.parentNode == eventsDiv)
 	{
 		//console.log("remove");
-		events_div.removeChild(busy);
+		eventsDiv.removeChild(busy);
 	}
 }
 
-function init_listener(i)
+/**
+ * Initialize UI event listener.
+ * @param {i} event index.
+ * @private
+ */
+popup.initListener = function(i)
 {
 	//console.log("init_listener" + i);
 
@@ -189,5 +242,6 @@ function init_listener(i)
 }
 
 
+popup.init();
 
 

@@ -1,16 +1,83 @@
-var script = document.createElement('script');
-script.src = 'https://apis.google.com/js/client.js';
-document.head.appendChild(script);
+/**
+ * @fileoverview Perform interaction with google calendar restful service
+ *
+ * @author keminming@google.com (Ke Wang)
+ */
 
-var script1 = document.createElement('script');
-script1.src = 'match_date_time.js';
-document.head.appendChild(script1);
+chrome.runtime.onConnect.addListener(function(port){
+    console.log("onConnect");
+	port.onMessage.addListener(function(msg) {
+		console.log("msg received");
+		if(msg.type == "modify")
+		{
+			console.log("modify");
+			//console.log(event_table);
+			calendar.changedEventTable.push(msg.payload);
+		}
+		
+		if(msg.type == "reset")
+		{
+			console.log("reset");
+			var id = msg.payload.id;
+			for(var i=0;i<calendar.changedEventTable.length;i++)
+			{
+				console.log(calendar.changedEventTable[i].id);
+				console.log(id);
+				if(calendar.changedEventTable[i].id == id)
+				{	
+					calendar.changedEventTable.splice(i, 1);
+				}
+			}
+		}
+		
+		if(msg.type == "delete")
+		{
+			var index = msg.payload.id;
+			var eventTable = JSON.parse(localStorage.event_table);
+			calendar.DeleteEvent(eventTable[index]);
+		}
+	});
+	
+	port.onDisconnect.addListener(function(msg) {
+		var eventList = {};
+		var eventTable = JSON.parse(localStorage.event_table);
+		for(var i=0;i<calendar.changedEventTable.length;i++)
+		{					
+			var id = calendar.changedEventTable[i].id;
+			var field = calendar.changedEventTable[i].field;
+			var value = calendar.changedEventTable[i].value;		
+			eventTable[id][field].value = value;	
+			eventList[id]++;
+		}
+		for(var key in eventList)
+		{
+			console.log("event to update is:");
+			console.log(eventTable[key]);
+			calendar.UpdateEvent(eventTable[key]);
+		}
+			
+		calendar.changedEventTable = [];
+	});
+});
 
-//core date model
-//var event_table = [];
-var changed_event_table = [];
+/**
+ * Namespace for calendar functionality.
+ */
+var calendar = {}
 
-function show_success()
+/**
+ * The event background color, using google logo color.
+ * @type {event[]}
+ * @private
+ */
+calendar.changedEventTable = [];
+
+
+/**
+ * A function that show success information to user.
+ * @private
+ */
+calendar.showSuccess = function()
 {
 	chrome.tabs.getSelected(null, function(tab) {
         chrome.tabs.query({active: true}, function(tabs){  		  
@@ -19,66 +86,15 @@ function show_success()
     });  
 }
 
-chrome.runtime.onConnect.addListener(function(port){
-    //console.log("onConnect");
-	port.onMessage.addListener(function(msg) {
-		//console.log("msg received");
-		if(msg.type == "modify")
-		{
-			console.log("modify");
-			//console.log(event_table);
-			changed_event_table.push(msg.payload);
-		}
-		
-		if(msg.type == "reset")
-		{
-			console.log("reset");
-			var id = msg.payload.id;
-			for(var i=0;i<changed_event_table.length;i++)
-			{
-				console.log(changed_event_table[i].id);
-				console.log(id);
-				if(changed_event_table[i].id == id)
-				{	
-					changed_event_table.splice(i, 1);
-				}
-			}
-		}
-		
-		if(msg.type == "delete")
-		{
-			var index = msg.payload.id;
-			var event_table = JSON.parse(localStorage.event_table);
-			DeleteEvent(event_table[index]);
-		}
-	});
-	
-	port.onDisconnect.addListener(function(msg) {
-		var event_list = {};
-		var event_table = JSON.parse(localStorage.event_table);
-		for(var i=0;i<changed_event_table.length;i++)
-		{					
-			var id = changed_event_table[i].id;
-			var field = changed_event_table[i].field;
-			var value = changed_event_table[i].value;		
-			event_table[id][field].value = value;	
-			event_list[id]++;
-		}
-		for(var key in event_list)
-		{
-			console.log("event to update is:");
-			//console.log(event_table[key]);
-			UpdateEvent(event_table[key]);
-		}
-			
-		changed_event_table = [];
-	});
-});
-
-function load_date_model(event_list)
+/**
+ * A function that load event list to main data model.
+ * @param {eventlist} events got from google calendar rest service.
+ * @private
+ */
+calendar.loadDateModel = function(eventList)
 {
-	var events = JSON.parse(event_list);
-	var new_event_table = [];
+	var events = JSON.parse(eventList);
+	var newEventTable = [];
 	
 	var count = 0;
 	for(var i = events.items.length - 1; i >= events.items.length - 10; i--)
@@ -105,17 +121,20 @@ function load_date_model(event_list)
 				"summary":s,
 			};
 			//console.log(event);
-			new_event_table.push(event);
+			newEventTable.push(event);
 		}
 		count++;
 	}
 
-	var event_table_txt = JSON.stringify(new_event_table);
-	localStorage.event_table = event_table_txt;
+	var eventTableTxt = JSON.stringify(newEventTable);
+	localStorage.event_table = eventTableTxt;
 }
 
-// Use a button to handle authentication the first time.
-function add_to_calendar(start,end,title){
+/**
+ * A function that add event to google calendar.
+ * @param {start,end,title} start time, end time and title of event.
+ */
+calendar.addToCalendar = function (start,end,title){
 	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
 		if (chrome.runtime.lastError) 
 		{
@@ -128,12 +147,16 @@ function add_to_calendar(start,end,title){
 			calendarID = "primary";
 		else
 			calendarID = localStorage.calendarID;
-		makeInsertApiCall(start,end,title,calendarID,token);
+		calendar.makeInsertApiCall(start,end,title,calendarID,token);
 	});
 }
 
-//"2011-12-16T10:00:00.000-07:00"
-function makeInsertApiCall(start,end,title,calendarID,access_token) {
+/**
+ * A function that actually add event to google calendar.
+ * @param {start,end,title,calendarID, accessToken} start time, end time and title of event and calendarID, accessToken to do authentication.
+ * @private
+ */
+calendar.makeInsertApiCall = function(start,end,title,calendarID,accessToken) {
 	var URL = "https://www.googleapis.com/calendar/v3/calendars/" + calendarID + "/events";
 	var resource = 
 	{
@@ -159,7 +182,7 @@ function makeInsertApiCall(start,end,title,calendarID,access_token) {
 			// This status may indicate that the cached
 			// access token was invalid. Retry once with
 			// a fresh token.
-			chrome.identity.removeCachedAuthToken({ 'token': access_token });
+			chrome.identity.removeCachedAuthToken({ 'token': accessToken });
 			window.alert("Invalid token.")
 			return;
 		}
@@ -170,17 +193,21 @@ function makeInsertApiCall(start,end,title,calendarID,access_token) {
 		}
 		else if(this.status === 200)
 		{
-			show_success();
+			calendar.showSuccess();
 			return;
 		}
 	}
 	client.open("POST", URL);
 	client.setRequestHeader("Content-Type", "application/json");
-	client.setRequestHeader('Authorization','Bearer ' + access_token);
+	client.setRequestHeader('Authorization','Bearer ' + accessToken);
 	client.send(message);
 }
 
-function get_events_from_calendar(callback)
+/**
+ * A function that return event in google calendar.
+ * @param {callback, callback param} the callback is the function to use the event.
+ */
+calendar.getEventsFromCalendar = function(callback,param)
 {
 	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
 		if (chrome.runtime.lastError) 
@@ -193,11 +220,16 @@ function get_events_from_calendar(callback)
 			calendarID = "primary";
 		else
 			calendarID = localStorage.calendarID;
-		makeListApiCall(calendarID,token,callback);
+		calendar.makeListApiCall(calendarID,token,callback,param);
 	});
 }
 
-function makeListApiCall(calendarID,access_token,callback) {
+/**
+ * A function that return event in google calendar.
+ * @param {calendarID,accessToken,callback,param}.
+ * @private 
+ */
+calendar.makeListApiCall = function (calendarID,accessToken,callback,param) {
 	var URL = "https://www.googleapis.com/calendar/v3/calendars/" + calendarID + "/events";
 	var client = new XMLHttpRequest();
 	client.onload = function () {
@@ -210,7 +242,7 @@ function makeListApiCall(calendarID,access_token,callback) {
 			// This status may indicate that the cached
 			// access token was invalid. Retry once with
 			// a fresh token.
-			chrome.identity.removeCachedAuthToken({ 'token': access_token });
+			chrome.identity.removeCachedAuthToken({ 'token': accessToken });
 			console.log("Invalid token.")
 			return;
 		}
@@ -222,17 +254,21 @@ function makeListApiCall(calendarID,access_token,callback) {
 		else if(this.status === 200)
 		{
 			//console.log(client.responseText);
-			load_date_model(client.responseText);
-			callback();
+			calendar.loadDateModel(client.responseText);
+			callback(param);
 		}
 	}
 	client.open("GET", URL);
 	client.setRequestHeader("Content-Type", "application/json");
-	client.setRequestHeader('Authorization','Bearer ' + access_token);
+	client.setRequestHeader('Authorization','Bearer ' + accessToken);
 	client.send("");
 }
 
-function UpdateEvent(event)
+/**
+ * A function that update a single event.
+ * @param {event} event to be updated.
+ */
+calendar.UpdateEvent = function(event)
 {
 	//console.log(event);
 	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
@@ -242,11 +278,16 @@ function UpdateEvent(event)
 			return;
 		}
 		
-		UpdateEventApiCall(event,"primary",token);
+		calendar.UpdateEventApiCall(event,"primary",token);
 	});
 }
 
-function UpdateEventApiCall(event,calendarID,access_token) {
+/**
+ * A function that actually update event.
+ * @param {event,calendarID,accessToken}.
+ * @private 
+ */
+calendar.UpdateEventApiCall = function(event,calendarID,accessToken) {
 
 	var URL = "https://www.googleapis.com/calendar/v3/calendars/" + calendarID + "/events/" + event.eid;
 	var client = new XMLHttpRequest();
@@ -283,7 +324,7 @@ function UpdateEventApiCall(event,calendarID,access_token) {
 			// This status may indicate that the cached
 			// access token was invalid. Retry once with
 			// a fresh token.
-			chrome.identity.removeCachedAuthToken({ 'token': access_token });
+			chrome.identity.removeCachedAuthToken({ 'token': accessToken });
 			console.log("Invalid token.")
 			return;
 		}
@@ -299,11 +340,15 @@ function UpdateEventApiCall(event,calendarID,access_token) {
 	}
 	client.open("PUT", URL);
 	client.setRequestHeader("Content-Type", "application/json");
-	client.setRequestHeader('Authorization','Bearer ' + access_token);
+	client.setRequestHeader('Authorization','Bearer ' + accessToken);
 	client.send(message);
 }
 
-function DeleteEvent(event)
+/**
+ * A function that delete a single event.
+ * @param {event} event to be deleted. 
+ */
+calendar.DeleteEvent = function(event)
 {
 	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
 		if (chrome.runtime.lastError) 
@@ -312,11 +357,16 @@ function DeleteEvent(event)
 			return;
 		}
 		
-		DeleteEventApiCall(event,"primary",token);
+		calendar.DeleteEventApiCall(event,"primary",token);
 	});
 }
 
-function DeleteEventApiCall(event,calendarID,access_token) {
+/**
+ * A function that actually delete event.
+ * @param {event,calendarID,accessToken}.
+ * @private 
+ */
+calendar.DeleteEventApiCall =  function(event,calendarID,accessToken) {
 
 	var URL = "https://www.googleapis.com/calendar/v3/calendars/" + calendarID + "/events/" + event.eid;
 	var client = new XMLHttpRequest();
@@ -331,7 +381,7 @@ function DeleteEventApiCall(event,calendarID,access_token) {
 			// This status may indicate that the cached
 			// access token was invalid. Retry once with
 			// a fresh token.
-			chrome.identity.removeCachedAuthToken({ 'token': access_token });
+			chrome.identity.removeCachedAuthToken({ 'token': accessToken });
 			console.log("Invalid token.")
 			return;
 		}
@@ -347,11 +397,15 @@ function DeleteEventApiCall(event,calendarID,access_token) {
 	}
 	client.open("DELETE", URL);
 	client.setRequestHeader("Content-Type", "application/json");
-	client.setRequestHeader('Authorization','Bearer ' + access_token);
+	client.setRequestHeader('Authorization','Bearer ' + accessToken);
 	client.send("");
 }
 
-function ListCalendar(callback)
+/**
+ * A function that get a event list.
+ * @param {callback}.
+ */
+calendar.ListCalendar = function(callback)
 {
 	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
 		if (chrome.runtime.lastError) 
@@ -360,11 +414,16 @@ function ListCalendar(callback)
 			return;
 		}
 		
-		ListCalendarApiCall(callback,token);
+		calendar.ListCalendarApiCall(callback,token);
 	});
 }
 
-function ListCalendarApiCall(callback,access_token) {
+/**
+ * A function that actually get a event list.
+ * @param {callback,accessToken}.
+ * @private 
+ */
+calendar.ListCalendarApiCall = function(callback,accessToken) {
 
 	var URL = "https://www.googleapis.com/calendar/v3/users/me/calendarList";
 	var client = new XMLHttpRequest();
@@ -379,7 +438,7 @@ function ListCalendarApiCall(callback,access_token) {
 			// This status may indicate that the cached
 			// access token was invalid. Retry once with
 			// a fresh token.
-			chrome.identity.removeCachedAuthToken({ 'token': access_token });
+			chrome.identity.removeCachedAuthToken({ 'token': accessToken });
 			console.log("Invalid token.")
 			return;
 		}
@@ -396,6 +455,6 @@ function ListCalendarApiCall(callback,access_token) {
 	}
 	client.open("GET", URL);
 	client.setRequestHeader("Content-Type", "application/json");
-	client.setRequestHeader('Authorization','Bearer ' + access_token);
+	client.setRequestHeader('Authorization','Bearer ' + accessToken);
 	client.send("");
 }

@@ -1,18 +1,22 @@
+/**
+ * @fileoverview Context menu functionality
+ *
+ * @author keminming@google.com (Ke Wang)
+ */
 
 var raw_date_time;
 var title;
 
-function prompt_time()
+function promptTime()
 {
 	chrome.tabs.getSelected(null, function(tab) {
         chrome.tabs.query({active: true}, function(tabs){  		  
 			chrome.tabs.sendMessage(tab.id, {action: "open_time_box"}); 		
 		});
     });     
-
 }
 
-function prompt_title()
+function promptTitle()
 {
 	chrome.tabs.getSelected(null, function(tab) {
         chrome.tabs.query({active: true}, function(tabs){  		  
@@ -29,7 +33,7 @@ function messageHandler(msg, sender, sendResponse)
 	{
 		console.log("receive open_date_box in context menu");
 		raw_date_time = msg.value;
-		prompt_title();
+		promptTitle();
 	}
 	
 	if(msg.action == "open_title_box")
@@ -46,7 +50,7 @@ function messageHandler(msg, sender, sendResponse)
 		var start = format_time_google_calendar(date_time,localStorage["timezone"]);
 		date_time.setHours(date_time.getHours() + 1);
 		var end = format_time_google_calendar(date_time,localStorage["timezone"]);
-		add_to_calendar(start,end,title);
+		calendar.addToCalendar(start,end,title);
 	}
 }
 
@@ -69,7 +73,7 @@ function onClickHandler(info, tab) {
 		
 		if(date === null || time === null || timezone === null || AM_PM === null)
 		{		
-			prompt_time();
+			promptTime();
 		}
 		else
 		{
@@ -78,11 +82,11 @@ function onClickHandler(info, tab) {
 			date_time.setHours(date_time.getHours() + 1);
 			end = format_time_google_calendar(date_time,timezone);
 		
-			title = prompt_title();
+			title = promptTitle();
 			if(title == null)
 				return;
 		
-			add_to_calendar(start,end,title);
+			calendar.addToCalendar(start,end,title);
 		}
 	}
 }

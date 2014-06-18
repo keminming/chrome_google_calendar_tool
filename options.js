@@ -1,22 +1,42 @@
+/**
+ * @fileoverview Perform interaction with google calendar restful service
+ *
+ * @author keminming@google.com (Ke Wang)
+ */
+ 
+/**
+ * Namespace for options functionality.
+ */
+var options = {}; 
 
-var calendar_list;
-
-function get_calendars(list)
+/**
+ * Initialize option page.
+ */ 
+options.init = function()
 {
-	calendar_list = JSON.parse(list).items;
-	create_UI(calendar_list,time_zone_mapping);
+	calendar.ListCalendar(getCalendars);
 }
 
-function create_UI(calendar_list,time_zone_mapping)
+/**
+ * Generate calendar ID list.
+ * @param {list}.
+ */
+function getCalendars(list)
 {
-	for(var i=0;i<calendar_list.length;i++)
+	var calendarList = JSON.parse(list).items;
+	createUI(calendarList,time_zone_mapping);
+}
+
+/**
+ * Generate options UI.
+ * @param {calendarList,time_zone_mapping}.
+ */
+function createUI(calendarList,time_zone_mapping)
+{
+	for(var i=0;i<calendarList.length;i++)
 	{
 		var option = document.createElement("option");
-		option.setAttribute("value",calendar_list[i].id);
-		option.setAttribute("class","calender_option");
-		var txt = document.createTextNode(calendar_list[i].id);
-		option.appendChild(txt);
-		$('#calendar-list').append(option);
+		$(option).attr({'class':'calender_option'}).text(calendarList[i].id).appendTo($('#calendar-list'));
 	}
 	$('select.calendar-list option[value="primary"]').attr("selected",true);
 
@@ -25,11 +45,7 @@ function create_UI(calendar_list,time_zone_mapping)
 		console.log(key);
 		var option = document.createElement("option");
 		console.log(time_zone_mapping[key]);
-		option.setAttribute("value",time_zone_mapping[key]);
-		var txt = document.createTextNode(key);
-		option.appendChild(txt);
-		option.setAttribute("class","timezone_option");
-		$('#time-zone').append(option);
+		$(option).attr({'value':time_zone_mapping[key],'class':'timezone_option'}).text(key).appendTo($('#time-zone'));
 	}
 	$('select.time-zone option[value="CDT"]').attr("selected",true);
 	$('#submit').bind("click",function(){
@@ -41,5 +57,4 @@ function create_UI(calendar_list,time_zone_mapping)
 	});
 }
 
-
-ListCalendar(get_calendars);
+options.init();
