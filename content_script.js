@@ -1,32 +1,60 @@
-function createSuccessBox()
+/**
+ * @fileoverview Injected content script
+ *
+ * @author keminming@google.com (Ke Wang)
+ */
+
+/**
+ * Namespace for contentScript functionality.
+ */
+var contentScript = {};
+
+/**
+ * Create box frame.
+ * @param {contents,id} content of the box and msg box ID.
+ * @private
+ */ 
+contentScript.createMsgBox = function(contents,id)
+{
+	var logo = document.createElement("div");
+	$(logo).addClass('logo').text('Calendar++');
+
+	var msgbox = document.createElement( 'div' );
+	$(msgbox).attr({'id':id,'class':'msgbox'}).append($(logo));
+
+	for(var i=0;i<contents.length;i++)
+	{
+		msgbox.appendChild(contents[i]);
+	}
+	
+	return msgbox;
+}
+
+/**
+ * Generate add event success box.
+ */ 
+contentScript.createSuccessBox = function()
 {
 	var contents = [];
 
-	var success_text = document.createElement("p");
-	success_text.setAttribute("class","promptText");
-	success_text.appendChild(document.createTextNode("Event add success, please check it out on the popup."));
+	var successText = document.createElement("p");
+	$(successText).addClass('promptText').text('Event add success, please check it out on the popup.');
 	
-	
-	var success_img = document.createElement("img");
-	success_img.setAttribute("id","success");
+	var successImg = document.createElement("img");
 	var url = chrome.extension.getURL("success.png") ;
-	success_img.setAttribute("src",url);
-	success_img.setAttribute("align","center");
+	$(successImg).attr({'id':'success','src':url,'align':'center'});
 	
-	var success_img_div = document.createElement("div");
-	success_img_div.appendChild(success_img);
-	success_img_div.setAttribute("align","center");
+	var successImgDiv = document.createElement("div");
+	$(successImgDiv).attr({'align':'center'}).append($(successImg));
 
-	contents.push(success_text);
-	contents.push(success_img_div);	
-	var datebox = createMsgBox(contents,"sucessbox");
+	contents.push(successText);
+	contents.push(successImgDiv);	
+	var datebox = contentScript.createMsgBox(contents,"sucessbox");
 
-	
 	var dimmer = document.createElement("div");
-	dimmer.setAttribute("id","dimmer3");
-	dimmer.setAttribute("class","dimmer");
-	$('body').append(dimmer);
-	$('body').append(datebox);
+	$(dimmer).attr({'id':'dimmer3','class':'dimmer'});
+
+	$('body').append(dimmer,datebox);
 	
 	$("#dimmer3").click(function() {
 		$("#sucessbox").fadeOut();
@@ -39,67 +67,58 @@ function createSuccessBox()
 	$('#dimmer3').fadeIn();	
 }
 
-function createMsgBox(contents,id)
-{
-	var logo = document.createElement("div")
-	logo.setAttribute("class","logo");
-	var logo_text = document.createTextNode("Calendar++");
-	logo.appendChild(logo_text);
-
-	var msgbox = document.createElement( 'div' );
-	msgbox.setAttribute("id",id);
-	msgbox.setAttribute("class","msgbox");
-	msgbox.appendChild(logo);
-	for(var i=0;i<contents.length;i++)
-	{
-		msgbox.appendChild(contents[i]);
-	}
-	
-	return msgbox;
-}
-
-function createDateBox()
+/**
+ * Create date time prompt box.
+ */ 
+contentScript.createDateBox = function()
 {
 	var contents = [];
-
-	var date_text = document.createElement("p");
-	date_text.setAttribute("class","promptText");
-	date_text.appendChild(document.createTextNode("Format can't be recognized, please input the date and time."));
-	var date_input = document.createElement("input");
-	date_input.setAttribute("id","date");
-	date_input.setAttribute("type","text");
-	date_input.setAttribute("data-field","datetime");	
-	date_input.setAttribute("class","inputbox");
+console.log("what the fuck");
+	var dateText = document.createElement("p");
+	$(dateText).addClass('promptText');
+	$(dateText).text("Format can't be recognized, please input the date and time.");
 	
-	var date_input_div = document.createElement("div");
-	date_input_div.appendChild(date_input);
-	date_input_div.setAttribute("align","center");
+	var dateInput = document.createElement("input");
+	$(dateInput)
+		.attr(
+			{
+				'id':'date',
+				'type':'text',
+				'data-field':'datetime',
+				'class':'inputbox'
+			}
+		)
+
+	var dateInputDiv = document.createElement("div");
+	$(dateInputDiv).attr({'align':'center'}).append($(dateInput));
 	
 	var btn = document.createElement("input");
-	btn.setAttribute("type","button");
-	btn.setAttribute("value","Submit");
-	btn.setAttribute("id","dateOk");
-	btn.setAttribute("class","calButton");
+	$(btn).attr(
+		{
+			'type':'button',
+			'value':'Submit',
+			'id':'dateOk',
+			'class':'calButton'
+		}
+	)
+	
 	var btnDiv = document.createElement("div");
-	btnDiv.setAttribute("align","center");
-	btnDiv.appendChild(btn);
-	btnDiv.setAttribute("class","calButton");
+	$(btnDiv).attr({'align':'center','class':'calButton'}).append($(btn));
 	
 	var dtBox = document.createElement("div");
-	dtBox.setAttribute("id","dtBox");
+	$(dtBox).attr({'id':'dtBox'});
 
-	contents.push(date_text);
-	contents.push(date_input_div);
+	contents.push(dateText);
+	contents.push(dateInputDiv);
 	contents.push(btnDiv);
 	contents.push(dtBox);
 	
-	var datebox = createMsgBox(contents,"datebox");
+	var datebox = contentScript.createMsgBox(contents,"datebox");
 	
 	var dimmer = document.createElement("div");
-	dimmer.setAttribute("id","dimmer1");
-	dimmer.setAttribute("class","dimmer");
-	$('body').append(dimmer);
-	$('body').append(datebox);
+	$(dimmer).attr({'id':'dimmer1','class':'dimmer'});
+
+	$('body').append(dimmer,datebox);
 	
 	$("#dateOk").click(function() {
 
@@ -129,43 +148,51 @@ function createDateBox()
 	$('#dimmer1').fadeIn();	
 }
 
-function createTitleBox()
+/**
+ * Create title prompt box.
+ */ 
+contentScript.createTitleBox = function()
 {
 	var contents = [];
 
-	var title_text = document.createElement("p");
-	title_text.setAttribute("class","promptText");
-	title_text.appendChild(document.createTextNode("Set event title."));
-	var title_input = document.createElement("input");
-	title_input.setAttribute("id","title");
-	title_input.setAttribute("type","text");
-	title_input.setAttribute("class","inputbox");
-	
-	var title_input_div = document.createElement("div");
-	title_input_div.appendChild(title_input);
-	title_input_div.setAttribute("align","center");
-			
-	var btn = document.createElement("input");
-	btn.setAttribute("type","button");
-	btn.setAttribute("value","Submit");
-	btn.setAttribute("id","titleOk");
-	btn.setAttribute("class","calButton");
-	var btnDiv = document.createElement("div");
-	btnDiv.setAttribute("align","center");
-	btnDiv.appendChild(btn);
-	btnDiv.setAttribute("class","calButton");
+	var titleText = document.createElement("p");
+	$(titleText).addClass('promptText').text('Set event title.');
 
-	contents.push(title_text);
-	contents.push(title_input_div);
+	var titleInput = document.createElement("input");
+	$(titleInput).attr(
+		{
+			'id':'title',
+			'type':'text',
+			'class':'inputbox'
+		}
+	)
+	
+	var titleInputDiv = document.createElement("div");
+	$(titleInputDiv).attr({'align':'center'}).append(titleInput);
+
+	var btn = document.createElement("input");
+	$(btn).attr(
+		{
+			'type':'button',
+			'value':'Submit',
+			'id':'titleOk',
+			'class':'calButton'
+		}
+	)
+
+	var btnDiv = document.createElement("div");
+	$(btnDiv).attr({'align':'center','class':'calButton'}).append($(btn));
+
+	contents.push(titleText);
+	contents.push(titleInputDiv);
 	contents.push(btnDiv);
 	
-	var titlebox = createMsgBox(contents,"titlebox");
+	var titlebox = contentScript.createMsgBox(contents,"titlebox");
+	
 	var dimmer = document.createElement("div");
-	dimmer.setAttribute("id","dimmer2");
-	dimmer.setAttribute("class","dimmer");
-	//$("#dimmer2").hide();
-	$('body').append(dimmer);
-	$('body').append(titlebox);
+	$(dimmer).attr({'id':'dimmer2','class':'dimmer'});
+	
+	$('body').append(dimmer,titlebox);
 
 	$("#titleOk").click(function() {
 		title = $("#title").val();
@@ -187,25 +214,24 @@ function createTitleBox()
 	$('#dimmer2').fadeIn();	
 }
 
-
 function messageHandler(msg, sender, sendResponse)
 {
 	if(msg.action == "open_time_box")
 	{
 		console.log("open time msg received in content script");
-		createDateBox();
+		contentScript.createDateBox();
 	}
 	
 	if(msg.action == "open_title_box")
 	{
 		console.log("open title msg received in content script");
-		createTitleBox();	
+		contentScript.createTitleBox();	
 	}
 	
 	if(msg.action == "add_event_sucess")
 	{
 		console.log("add_event_sucess msg received in content script");
-		createSuccessBox();
+		contentScript.createSuccessBox();
 	}
 }
 
