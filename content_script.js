@@ -73,7 +73,7 @@ contentScript.createSuccessBox = function()
 contentScript.createDateBox = function()
 {
 	var contents = [];
-console.log("what the fuck");
+
 	var dateText = document.createElement("p");
 	$(dateText).addClass('promptText');
 	$(dateText).text("Format can't be recognized, please input the date and time.");
