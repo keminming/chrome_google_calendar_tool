@@ -46,7 +46,7 @@ textarea
 	font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
 	font-weight: bold;
 	vertical-align:bottom;
-	height:30px;
+	height:35px;
 	color:steelblue;
 }
 
@@ -89,7 +89,7 @@ textarea
 	cursor:pointer;
 }
 
-#right,#left
+.right,.left
 {
 	float:right;
 }

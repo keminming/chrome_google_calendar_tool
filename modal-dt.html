@@ -1,0 +1,26 @@
+<div id = "modal-dt">
+	<div class = "myheader">
+        <h3 class="myheader">Calendar++</h3>
+    </div>
+	<div align = "center" class = "mybody">
+		<div class = "mytxt">
+			<label for "title" id = "titleText"></label>
+			<input class = "mytxt" type = "text" id = "title"/>
+		</div>
+		<div class = "mytxt">
+			<label for "title" id = "suggestion"></label>
+			<input class = "mytxt" type = "text" id = "date" data-field = "datetime"/>
+		</div>
+		<div class="mybtn clearfix">
+			<a id = "ok" class="close" href="#">Add</a>
+			<a class="close cancel" href="#">Cancel</a>
+		</div>
+	</div><!-- /.modal-content -->
+	<div id = 'dtBox'>
+		<script>
+			$("#dtBox").DateTimePicker();
+		</script>
+	</div>
+</div><!-- /.modal -->
+
+

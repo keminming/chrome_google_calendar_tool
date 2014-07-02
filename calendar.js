@@ -4,6 +4,7 @@
  * @author keminming@google.com (Ke Wang)
  */
 
+ 
 chrome.runtime.onConnect.addListener(function(port){
     console.log("onConnect");
 	port.onMessage.addListener(function(msg) {
@@ -52,7 +53,7 @@ chrome.runtime.onConnect.addListener(function(port){
 		for(var key in eventList)
 		{
 			console.log("event to update is:");
-			console.log(eventTable[key]);
+			//console.log(eventTable[key]);
 			calendar.UpdateEvent(eventTable[key]);
 		}
 			
@@ -97,13 +98,22 @@ calendar.loadDateModel = function(eventList)
 	var newEventTable = [];
 	
 	var count = 0;
-	for(var i = events.items.length - 1; i >= events.items.length - 10; i--)
+	for(var i = events.items.length - 1; i >= 0; i--)
 	{
-		var d = parse_time_google_calendar(events.items[i]);
-		var date = get_date_from_calendar(d);
-		console.log(date);
-		var time = get_time_from_calendar(d);
-		console.log(time);
+		if(events.items[i].start == null || events.items[i].start.dateTime == null)
+		{
+			continue;
+		}
+		
+		var dateTimeO = DateTime.fromCalendar(events.items[i].start.dateTime);
+		var zoneO = dateTimeO[2]
+		
+		var dateTime = DateTime.fromCalendar(moment(events.items[i].start.dateTime).zone(localStorage["timezone"]));
+		console.log(dateTimeO)
+		console.log(dateTime);
+		var date = dateTime[0];
+		var time = dateTime[1];
+		var zone = dateTime[2]
 		var id = events.items[i].id;
 		var sequence = events.items[i].sequence;
 		
@@ -118,6 +128,7 @@ calendar.loadDateModel = function(eventList)
 				"sequence":sequence,
 				"date":d,
 				"time":t,
+				"zone":zoneO,
 				"summary":s,
 			};
 			//console.log(event);
@@ -157,6 +168,7 @@ calendar.addToCalendar = function (start,end,title){
  * @private
  */
 calendar.makeInsertApiCall = function(start,end,title,calendarID,accessToken) {
+	console.log("makeInsertApiCall");
 	var URL = "https://www.googleapis.com/calendar/v3/calendars/" + calendarID + "/events";
 	var resource = 
 	{
@@ -193,6 +205,7 @@ calendar.makeInsertApiCall = function(start,end,title,calendarID,accessToken) {
 		}
 		else if(this.status === 200)
 		{
+			console.log(client.responseText);
 			calendar.showSuccess();
 			return;
 		}
@@ -230,7 +243,7 @@ calendar.getEventsFromCalendar = function(callback,param)
  * @private 
  */
 calendar.makeListApiCall = function (calendarID,accessToken,callback,param) {
-	var URL = "https://www.googleapis.com/calendar/v3/calendars/" + calendarID + "/events";
+	var URL = "https://www.googleapis.com/calendar/v3/calendars/" + calendarID + "/events?maxResults=2500";
 	var client = new XMLHttpRequest();
 	client.onload = function () {
 		if(this.status === 400)
@@ -253,6 +266,7 @@ calendar.makeListApiCall = function (calendarID,accessToken,callback,param) {
 		}
 		else if(this.status === 200)
 		{
+			//console.log(moment());
 			//console.log(client.responseText);
 			calendar.loadDateModel(client.responseText);
 			callback(param);
@@ -291,25 +305,22 @@ calendar.UpdateEventApiCall = function(event,calendarID,accessToken) {
 
 	var URL = "https://www.googleapis.com/calendar/v3/calendars/" + calendarID + "/events/" + event.eid;
 	var client = new XMLHttpRequest();
-	var date_array = event.date.value.split("-");
-	var time_array = event.time.value.split(":");
-	//console.log(date_array);
-	//console.log(time_array);
-	var date_time = get_data_time(date_array,time_array,"AM");
-	start = format_time_google_calendar(date_time,localStorage["timezone"]);
-	date_time.setHours(date_time.getHours() + 1);
-	end = format_time_google_calendar(date_time,localStorage["timezone"]);
-	var sequence = event.sequence + 1;
+	
+	var dateTime = DateTime.toCalendar(moment(event.date.value + " " + event.time.value + " " + localStorage["timezone"]).zone(event.zone));
+/* 	console.log(event.date.value + " " + event.time.value + " " + localStorage["timezone"]);
+	console.log(dateTime); */
+	
+	var sequence = event.sequence + 1; 
 	//console.log(sequence);
 
 	var resource = 
 	{
 		"summary":event.summary.value,
 		"start": {
-			"dateTime": start
+			"dateTime": dateTime[0]
 		},
 		"end": {
-			"dateTime": end
+			"dateTime": dateTime[1]
 		},
 		"sequence":sequence
 	};	
@@ -449,7 +460,7 @@ calendar.ListCalendarApiCall = function(callback,accessToken) {
 		}
 		else if(this.status === 200)
 		{
-			console.log(client.responseText);
+			//console.log(client.responseText);
 			callback(client.responseText);
 		}
 	}
@@ -458,3 +469,5 @@ calendar.ListCalendarApiCall = function(callback,accessToken) {
 	client.setRequestHeader('Authorization','Bearer ' + accessToken);
 	client.send("");
 }
+
+

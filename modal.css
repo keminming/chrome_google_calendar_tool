@@ -1,0 +1,119 @@
+#modal-dt .myheader {
+	background: #049CDB;
+	padding-bottom: 18px;
+	padding-top: 18px;
+	padding-left: 14px;
+}
+
+#modal-dt .myheader h3 {
+	margin: 0;
+	padding: 0;
+	font-weight: bold;
+	text-align:left;
+	font-family:arial;
+	color:white;
+	font-size:20px
+}
+
+#modal-dt form {
+	padding: 10px 0;
+}
+
+#modal-dt .mytxt {
+	padding: 10px 20px;
+}
+
+#modal-dt .mytxt input {
+	width: 220px;
+	height: 20px !important;
+	padding: 5px;
+	border: 1px solid #CCC;
+}
+
+#modal-dt .mytxt label {
+	float: left;
+	width: 120px;
+	line-height: 28px;
+	font-size: 13px;
+	font-family:arial;
+	color:black;
+}
+
+#modal-dt .mybtn {
+	padding: 10px 20px 10px 140px;
+	overflow:hidden;
+}
+
+#modal-dt .mybtn a {
+	float: left;
+	padding: 0 20px;
+	line-height: 28px;
+	background: rgb(249,1,1);
+	text-align: center;
+	font-family: arial;
+	font-size: 14px;
+	text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+	color: #FFF;
+	margin: 0 10px 0 0;
+	border: none;
+	text-decoration: none;
+	opacity:1;
+}
+
+#modal-dt .mybtn a.cancel {
+	background: #049CDB;
+	box-shadow: none;
+	color: #FFF;
+	text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+}
+
+#modal-dt .mybody
+{
+	background: #FFFFFF;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+}
+
+#modal-dt .myfooter
+{
+	background: blue;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+}
+
+#modal-s .myheader {
+	background: #049CDB;
+	padding-bottom: 18px;
+	padding-top: 18px;
+	padding-left: 14px;
+}
+
+#modal-s .myheader h3 {
+	margin: 0;
+	padding: 0;
+	font-weight: bold;
+	text-align:left;
+	font-family:arial;
+	color:white;
+	font-size:20px
+}
+
+#modal-s .mybody
+{
+	background: #FFFFFF;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+}
+
+#modal-s .mytxt
+{
+	font-family: arial;
+	font-size:14px;
+}
+

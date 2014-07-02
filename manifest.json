@@ -1,6 +1,6 @@
 {
   "name": "Calendar++",
-  "version": "1.4",
+  "version": "1.5",
   "manifest_version": 2,
   "description": "Add event to Google Calendar by Chrome Extension",
   "browser_action": {
@@ -14,13 +14,13 @@
   },
   "background": 
   { 
-	"scripts": ["contextMenus.js","calendar.js","scheduler.js","dateTime.js"]
+	"scripts": ["moment-2.6.0.min.js","dateTime.js","contextMenus.js","calendar.js","scheduler.js","moment.parseFormat.js"]
   },
   "content_scripts": [
     {
       "matches": ["http://*/*","https://*/*"],
-	  "css":["DateTimePicker.css","content_script.css"],
-      "js": ["jquery-1.11.1.min.js","DateTimePicker.js","content_script.js"]
+	  "css":["DateTimePicker.css","modal.css"],
+      "js": ["jquery-1.11.1.min.js","moment-2.6.0.min.js","content_script.js","DateTimePicker.js","jquery.easyModal.js"]
     }
   ],
   "permissions": ["identity","*://apis.google.com/*","contextMenus","tabs"],
@@ -31,7 +31,9 @@
     ]
   },
   "web_accessible_resources": [
-    "*.png"
+    "*.png",
+	"modal-dt.html",
+	"modal-s.html"
   ],
   "content_security_policy": "script-src 'self' https://*.google.com; object-src 'self'"
 }

@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html>
   <head>
-	<script src="jquery-1.11.1.min.js"></script> 
-	<script src="dateTime.js"></script>
+	<script src = "jquery-1.11.1.min.js"></script>
+	<script src = "moment-2.6.0.min.js"></script>
+	<script src = "moment.parseFormat.js"></script>
+	<script src = "dateTime.js"></script>
+	<script src = "calendar.js"></script>
 	<link rel="stylesheet" href="popup.css" type="text/css">
   </head>
   <body>
     <header>
 		<div class = "action-bar">
-			<a href = "options.html" target = "_blank"><img src = "configure-16.jpg" id = "configure" title = "Configure Your Calendar++"></a>
+			<img src = "plus.png" id = "add" title = "Add New Event" id = "add">
+			<a href = "options.html" target = "_blank"><img src = "configure-16.jpg" id = "configure" title = "Configure"></a>
 			<a href = "help.html" target = "_blank"><img src = "question-16.png" id = "question" title = "Help"></a>
 		</div>
 		<div class = "popup-title">

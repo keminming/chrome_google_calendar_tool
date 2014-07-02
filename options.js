@@ -1,5 +1,5 @@
 /**
- * @fileoverview Perform interaction with google calendar restful service
+ * @fileoverview Provide options to choose calendar and time zone.
  *
  * @author keminming@google.com (Ke Wang)
  */
@@ -24,7 +24,7 @@ options.init = function()
 function getCalendars(list)
 {
 	var calendarList = JSON.parse(list).items;
-	createUI(calendarList,time_zone_mapping);
+	createUI(calendarList,DateTime.timeZoneMapping);
 }
 
 /**
@@ -36,7 +36,7 @@ function createUI(calendarList,time_zone_mapping)
 	for(var i=0;i<calendarList.length;i++)
 	{
 		var option = document.createElement("option");
-		$(option).attr({'class':'calender_option'}).text(calendarList[i].id).appendTo($('#calendar-list'));
+		$(option).attr({'class':'calender_option'}).text(calendarList[i].summary).appendTo($('#calendar-list'));
 	}
 	$('select.calendar-list option[value="primary"]').attr("selected",true);
 

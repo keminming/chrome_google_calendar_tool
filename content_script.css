@@ -7,7 +7,7 @@
     height:16em;
     margin-top: -9em; /*set to a negative number 1/2 of your height*/
     margin-left: -15em; /*set to a negative number 1/2 of your width*/
-    border: 1px solid #ccc;
+    border: 4px solid #ccc;
     background-color: #FFFFFF;
 	z-index:9999;
 	display:none;
@@ -16,7 +16,7 @@
 .dimmer
 {
     background-color:black;
-    opacity:0.5;
+    opacity:0.8;
     position:fixed; /* important to use fixed, not absolute */
     top:0;
     left:0;
@@ -52,6 +52,8 @@
 	-moz-transition: all 0.30s ease-in-out;
 	outline: none;
 	border: 1px solid steelblue;
+	margin-left:auto;
+	margin-right:auto;
 }
 
 .inputbox :focus
@@ -74,7 +76,7 @@ input.calButton
   font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
   color: #ffffff;
   font-size: 16px;
-  background: #3498db;
+  background: steelblue;
   padding: 10px 20px 20px 20px;
   text-decoration: none;
   border-style:none;
