@@ -34,6 +34,13 @@ popup.colors = ["#0266C8","#F90101","#F2B50F"," #00933B"];
  */
 popup.init = function()
 {
+	var profile = JSON.parse(localStorage.profile);
+	var name = profile.displayName;
+	$('#logo_text').text('Hi, ' + name).attr({'vertical-align':'middle'});
+	$('#icon').attr({'border-radius':'15px'});
+	var imgUrl = profile.image.url;
+	$('#logo').attr({'src':imgUrl});
+	
 	var eventsDiv = $('#calendar-events').get(0);
 	$('#calendar-events').attr({'align':'center'});
 	var busy = document.createElement("img");
@@ -45,6 +52,7 @@ popup.init = function()
 		popup.createNewEvent(popup.newEventCount++);
 	});
 }
+
 
 popup.createExistEvent = function(table,event_table,i)
 {

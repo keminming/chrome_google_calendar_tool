@@ -19,6 +19,50 @@ var scheduler = {};
 scheduler.BADGE_UPDATE_INTERVAL_MS_ = 60 * 60 * 1000;
 
 
+scheduler.accessUserInfo = function()
+{
+	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
+		if (chrome.runtime.lastError) 
+		{
+			console.log(chrome.runtime.lastError);
+			return;
+		}
+
+		var URL = "https://www.googleapis.com/plus/v1/people/me?";
+		var client = new XMLHttpRequest();
+		client.onload = function () {
+			if(this.status === 400)
+			{
+				console.log("Bad request.");
+				return;
+			}
+			if (this.status === 401) {
+				// This status may indicate that the cached
+				// access token was invalid. Retry once with
+				// a fresh token.
+				chrome.identity.removeCachedAuthToken({ 'token': token });
+				console.log("Invalid token.")
+				return;
+			}
+			else if(this.status === 404)
+			{
+				console.log("Calendar not found.");
+				return;
+			}
+			else if(this.status === 200)
+			{
+				//console.log(moment());
+				//console.log(client.responseText);
+				localStorage["profile"] = client.responseText;
+			}
+		}
+		client.open("GET", URL);
+		client.setRequestHeader("Content-Type", "application/json");
+		client.setRequestHeader('Authorization','Bearer ' + token);
+		client.send("");				
+	});	
+}
+
 /**
  * Poll event from calendar
  * @private
@@ -48,6 +92,7 @@ scheduler.poll = function(){
  */
 scheduler.start = function() {
   console.log('scheduler.start()');
+  scheduler.accessUserInfo();
   scheduler.poll();
   // Do a one-time initial fetch on load.
   window.setInterval(scheduler.poll, scheduler.BADGE_UPDATE_INTERVAL_MS_);
