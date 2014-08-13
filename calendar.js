@@ -53,7 +53,7 @@ chrome.runtime.onConnect.addListener(function(port){
 		for(var key in eventList)
 		{
 			console.log("event to update is:");
-			//console.log(eventTable[key]);
+			console.log(eventTable[key]);
 			calendar.UpdateEvent(eventTable[key]);
 		}
 			
@@ -225,7 +225,8 @@ calendar.getEventsFromCalendar = function(callback,param)
 	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
 		if (chrome.runtime.lastError) 
 		{
-			console.log(chrome.runtime.lastError);
+			//console.log(chrome.runtime.lastError);
+			console.log("mother");
 			return;
 		}
 		var calendarID;
@@ -284,14 +285,15 @@ calendar.makeListApiCall = function (calendarID,accessToken,callback,param) {
  */
 calendar.UpdateEvent = function(event)
 {
-	//console.log(event);
+	console.log(event);
 	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
+		console.log("come in");
 		if (chrome.runtime.lastError) 
 		{
 			console.log(chrome.runtime.lastError);
 			return;
 		}
-		
+		console.log("before UpdateEventApiCall");
 		calendar.UpdateEventApiCall(event,"primary",token);
 	});
 }
@@ -302,13 +304,14 @@ calendar.UpdateEvent = function(event)
  * @private 
  */
 calendar.UpdateEventApiCall = function(event,calendarID,accessToken) {
-
+console.log("UpdateEventApiCall"); 
 	var URL = "https://www.googleapis.com/calendar/v3/calendars/" + calendarID + "/events/" + event.eid;
 	var client = new XMLHttpRequest();
+	console.log("after XMLHttpRequest");
 	
-	var dateTime = DateTime.toCalendar(moment(event.date.value + " " + event.time.value + " " + localStorage["timezone"]).zone(event.zone));
-/* 	console.log(event.date.value + " " + event.time.value + " " + localStorage["timezone"]);
-	console.log(dateTime); */
+	console.log(event.date.value + " " + event.time.value + " " + localStorage["timezone"]);
+	
+	var dateTime = DateTime.toCalendar(moment(event.date.value + " " + event.time.value + " " + localStorage["timezone"]).zone(event.zone).format());
 	
 	var sequence = event.sequence + 1; 
 	//console.log(sequence);

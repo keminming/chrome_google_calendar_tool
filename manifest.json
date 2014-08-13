@@ -24,7 +24,6 @@
     }
   ],
   "permissions": ["identity","*://apis.google.com/*","contextMenus","tabs"],
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArkU3jcFE60x5kS62bE137ebykdAmfsY1Xqkfaz+2pdd1pKoc6AbDHvsDvQx7CB/AStI65A1YOGz030GZ9/Zj5yRqh4JusoWS6t9n90yJQa1XalaCiDi/5MHChhEJkjFekRljYv411JUBgRllmE4neNqESNg3IFGMwKYzfWZ6XiwmQsFup66lX/Te141mfzOdDOkKEKNYP4WtieKkyvU5hzJh6Z/wJC/2gHvIkVuQOQI3wCUWnRK/xqCwUQ2SMhlwS5tV0dRxwSHDtTXgXoLjVViHP0DEWd99iToUqYgJ+rNvLPLXVliybzzusbwNeOpU+FccrWg58TgngZAdMszkdQIDAQAB",
   "oauth2": {
     "client_id": "206855820890-ph06p7tufqse0hbdf8vmu36oohb6numf.apps.googleusercontent.com",
     "scopes": [
